@@ -1,8 +1,56 @@
 [project]
 name = "labs"
 version = "0.1.0"
-description = "Add your description here"
+description = "Laba1_sem_2"
 requires-python = ">=3.12"
 dependencies = [
+    "pip>=25.3",
     "pytest>=8.4.2",
+    "pytest-cov>=7.0.0",
+    "setuptools>=80.9.0",
 ]
+
+[tool.mypy]
+files = ["src"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "pytest"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+ignore_missing_imports = true
+
+[tool.uv]
+dev-dependencies=[
+    "pytest-cov>=7.0.0",
+    "ruff>=0.14.2",
+]
+
+[tool.uv.workspace]
+members = [
+    "laba_1_2",
+]
+
+[tool.pytest.ini_options]
+addopts = [
+  "--cov=src",
+  "--cov-branch",
+  "--cov-report=term-missing",
+  "-q",
+]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+
+[tool.coverage.run]
+source = ["src"]
+branch = true
+parallel = true
+omit = ["*/__init__.py", "*/main.py"]
+
+
+[tool.coverage.report]
+show_missing = true
+fail_under = 80
