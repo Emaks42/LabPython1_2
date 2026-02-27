@@ -17,5 +17,4 @@ class APISource:
         return API_ANSWERS[(perf_counter_ns() - self.time) % len(API_ANSWERS)]
 
     def is_tasks_ended(self) -> bool:
-        return not bool((perf_counter_ns() - self.time) % 100)
-
+        return not bool((perf_counter_ns() - self.time) % 20)

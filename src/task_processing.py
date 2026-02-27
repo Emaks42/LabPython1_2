@@ -16,6 +16,8 @@ def get_tasks_from_source(source: TaskSource) -> Iterable[Task]:
     while not source.is_tasks_ended():
         task = source.get_task()
         task = task.split(" - ", 1)
+        if len(task) != 2:
+            raise ValueError(f"corrupted task \"{' - '.join(task)}\"")
         try:
             tasks.append(Task(int(task[0]), task[1]))
         except ValueError:
