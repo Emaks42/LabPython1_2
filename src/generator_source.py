@@ -4,8 +4,15 @@ from constants import TASK_PURPOSES, TASK_DESTINATIONS
 
 
 class GeneratorSource:
+    """
+    Источник данных типа генератор (случайные задачи)
+    :cvar seed - семя генерации
+    :cvar amount_of_tasks - количество генерируемых задач
+    :cvar returned_tasks_count - количество уже сгенерированных задач
+    """
     seed: float
-    chance_of_eof: int
+    amount_of_tasks: int
+    returned_tasks_count: int
 
     def __init__(self, seed: int | None = None, amount_of_tasks: int = random.randint(10, 100)):
         if seed:

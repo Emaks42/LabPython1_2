@@ -5,6 +5,11 @@ from hashlib import sha256
 
 
 class APISource:
+    """
+    Источник задач - API-заглушка
+    :cvar time - время начала "приёма" данных
+    :cvar timeout - задержка (формируется из адреса)
+    """
     time: int
     timeout: int
 

@@ -3,6 +3,10 @@ from os import SEEK_SET
 
 
 class FileSource:
+    """
+    Источник данных файл
+    :cvar file - исходный файл с задачами
+    """
     file: TextIO
 
     def __init__(self, file: str):
@@ -16,4 +20,3 @@ class FileSource:
         is_end = not bool(self.file.read())
         self.file.seek(sav, SEEK_SET)
         return is_end
-

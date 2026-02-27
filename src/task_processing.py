@@ -5,11 +5,21 @@ from typing import Iterable
 
 @dataclass
 class Task:
+    """
+    Простой класс, описывающий задачу в системе
+    :cvar uid - id задачи
+    :cvar payload - содержание задачи
+    """
     uid: int
     payload: str
 
 
 def get_tasks_from_source(source: TaskSource) -> Iterable[Task]:
+    """
+    Функция, получающая задачи из источника, описанного протоколом
+    :param source: источник данных
+    :return: список задач
+    """
     if not isinstance(source, TaskSource):
         raise ValueError("incorrect data source")
     tasks: list[Task] = []
