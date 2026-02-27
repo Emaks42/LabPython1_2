@@ -9,17 +9,42 @@ def main() -> None:
     Обязательнная составляющая программ, которые сдаются. Является точкой входа в приложение
     :return: Данная функция ничего не возвращает
     """
-    print("Данные из файла:")
-    file = FileSource("file_")
-    print(*get_tasks_from_source(file), sep="\n")
-
-    print("\nДанные из апи:")
-    api = APISource("goida.com")
-    print(*get_tasks_from_source(api), sep="\n")
-
-    print("\nДанные из генератора:")
-    gener = GeneratorSource(15, 12)
-    print(*get_tasks_from_source(gener), sep="\n")
+    print("Добро пожаловать в командную строку обработчика задач, для завершения введите end")
+    inp_ = input("$ > ")
+    while inp_ != "end":
+        inp = inp_.split()
+        if len(inp) == 0:
+            inp_ = input("$ > ")
+            continue
+        if inp[0] == "read_file":
+            if len(inp) == 2:
+                print("Данные из файла:")
+                file = FileSource(inp[1])
+                print(*get_tasks_from_source(file), sep="\n")
+            else:
+                print("слишком много аргументов")
+        elif inp[0] == "listen_api":
+            if len(inp) == 2:
+                print("Данные из апи:")
+                api = APISource(inp[1])
+                print(*get_tasks_from_source(api), sep="\n")
+            else:
+                print("слишком много аргументов")
+        elif inp[0] == "generate_tasks":
+            if len(inp) > 3:
+                print("слишком много аргументов")
+            else:
+                print("Данные из генератора:")
+                gener = GeneratorSource()
+                if len(inp) == 2:
+                    gener = GeneratorSource(int(inp[1]))
+                elif len(inp) == 3:
+                    gener = GeneratorSource(int(inp[1]), int(inp[2]))
+                print(*get_tasks_from_source(gener), sep="\n")
+        else:
+            print("неизвестная команда")
+        inp_ = input("$ > ")
+    print("спасибо, что выбираете нас 😁")
 
 
 if __name__ == "__main__":
