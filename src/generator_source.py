@@ -1,6 +1,6 @@
 import random
 from hashlib import sha256
-from constants import TASK_PURPOSE, TASK_DESTINATION
+from constants import TASK_PURPOSES, TASK_DESTINATIONS
 
 
 class GeneratorSource:
@@ -16,9 +16,9 @@ class GeneratorSource:
     def get_task(self) -> str:
         random.setstate(self.state)
         destinantions_amount = random.randint(1, 2)
-        task = random.choice(TASK_PURPOSE)
+        task = random.choice(TASK_PURPOSES)
         for i in range(destinantions_amount):
-            task += " " + random.choice(TASK_DESTINATION)
+            task += " " + random.choice(TASK_DESTINATIONS)
         self.state = random.getstate()
         task = str(int((sha256(task.encode())).hexdigest()[:3], 16)) + " - " + task
         self.returned_tasks_count += 1
