@@ -25,6 +25,8 @@ def get_tasks_from_source(source: TaskSource) -> Iterable[Task]:
     tasks: list[Task] = []
     while not source.is_tasks_ended():
         task = source.get_task()
+        if not isinstance(task, str):
+            raise ValueError(f"incorrect type of task, expected str, got \"{type(task)}\"")
         task = task.split(" - ", 1)
         if len(task) != 2:
             raise ValueError(f"corrupted task \"{' - '.join(task)}\"")
@@ -45,6 +47,8 @@ def get_task_iter_from_source(source: TaskSource):
         raise ValueError("incorrect data source")
     while not source.is_tasks_ended():
         task = source.get_task()
+        if not isinstance(task, str):
+            raise ValueError(f"incorrect type of task, expected str, got \"{type(task)}\"")
         task = task.split(" - ", 1)
         if len(task) != 2:
             raise ValueError(f"corrupted task \"{' - '.join(task)}\"")

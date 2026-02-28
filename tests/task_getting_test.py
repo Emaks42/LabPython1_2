@@ -20,6 +20,17 @@ class IncorrectSource2:
         return self.a
 
 
+class IncorrectSource3:
+    def __init__(self):
+        self.a = False
+
+    def get_task(self):
+        return self.a
+
+    def is_tasks_ended(self) -> bool:
+        return self.a
+
+
 def test_task_getting_base_work():
     source = GeneratorSource(10, 2)
     assert get_tasks_from_source(source) == [Task(1139, "перераспределить ресурсы на recroll.en"),
@@ -38,6 +49,8 @@ def test_task_getting_incorrect_sources():
         get_tasks_from_source(IncorrectSource1())
     with pytest.raises(ValueError):
         get_tasks_from_source(IncorrectSource2())
+    with pytest.raises(ValueError):
+        get_tasks_from_source(IncorrectSource3())
     with pytest.raises(ValueError):
         get_tasks_from_source(12)
 

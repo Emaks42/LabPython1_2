@@ -185,12 +185,15 @@ def test_task_getting_incorrect_sources():
     with pytest.raises(ValueError):
         get_tasks_from_source(IncorrectSource2())
     with pytest.raises(ValueError):
+        get_tasks_from_source(IncorrectSource3())
+    with pytest.raises(ValueError):
         get_tasks_from_source(12)
 </pre>
 
 Для этого теста используются дополнительные классы:
 
 <pre>
+#нет какой-либо функции
 class IncorrectSource1:
     def __init__(self):
         self.abc = 0
@@ -202,6 +205,17 @@ class IncorrectSource1:
 class IncorrectSource2:
     def __init__(self):
         self.a = True
+
+    def is_tasks_ended(self) -> bool:
+        return self.a
+
+#неверный тип возвращаемого значения
+class IncorrectSource3:
+    def __init__(self):
+        self.a = False
+
+    def get_task(self):
+        return self.a
 
     def is_tasks_ended(self) -> bool:
         return self.a
@@ -217,6 +231,6 @@ def test_task_iter_base_work():
     assert it.__next__() == Task(1305, "обработать входящие данные из внешнего источника EMAKS goida.com")
 </pre>
 
-Все тесты в сумме покрывают примерно 93% кода из src. Всего есть ~7 тестов (так как размер и сложность кодовой базы
+Все тесты в сумме покрывают примерно 92% кода из src. Всего есть ~7 тестов (так как размер и сложность кодовой базы
 работы небольшие потребовалось небольшое количество тестов, отдельно хотелось бы отметить, что нет тестов для ошибок в
 итераторе, так как его код почти не отличается от кода обычной функции получения задач).
