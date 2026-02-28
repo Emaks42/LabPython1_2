@@ -33,3 +33,22 @@ def get_tasks_from_source(source: TaskSource) -> Iterable[Task]:
         except ValueError:
             raise ValueError(f"corrupted task \"{' - '.join(task)}\"")
     return tasks
+
+
+def get_task_iter_from_source(source: TaskSource):
+    """
+        Функция, получающая задачи из источника, описанного протоколом
+        :param source: источник данных
+        :return: итератор
+    """
+    if not isinstance(source, TaskSource):
+        raise ValueError("incorrect data source")
+    while not source.is_tasks_ended():
+        task = source.get_task()
+        task = task.split(" - ", 1)
+        if len(task) != 2:
+            raise ValueError(f"corrupted task \"{' - '.join(task)}\"")
+        try:
+            yield Task(int(task[0]), task[1])
+        except ValueError:
+            raise ValueError(f"corrupted task \"{' - '.join(task)}\"")

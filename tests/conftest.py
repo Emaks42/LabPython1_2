@@ -1,11 +1,12 @@
 import pytest
+import os
 
 
 @pytest.fixture
 def files():
-    filenames = {"common": "tests\\common_file",
-                 "corr_1": "tests\\corrupted_file_1",
-                 "corr_2": "tests\\corrupted_file_2"}
+    filenames = {"common": "tests"+os.sep+"common_file",
+                 "corr_1": "tests"+os.sep+"corrupted_file_1",
+                 "corr_2": "tests"+os.sep+"corrupted_file_2"}
     file_1 = open(filenames["common"], "w")
     file_1.write("""103 - проверить состояние ресурса MAII
 3457 - проверить состояние сервиса mai.ru NIICHAVO.su

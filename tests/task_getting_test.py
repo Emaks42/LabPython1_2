@@ -1,7 +1,7 @@
 import pytest
 from src.file_source import FileSource
 from src.generator_source import GeneratorSource
-from src.task_processing import get_tasks_from_source, Task
+from src.task_processing import get_tasks_from_source, Task, get_task_iter_from_source
 
 
 class IncorrectSource1:
@@ -24,6 +24,13 @@ def test_task_getting_base_work():
     source = GeneratorSource(10, 2)
     assert get_tasks_from_source(source) == [Task(1139, "перераспределить ресурсы на recroll.en"),
                                     Task(1305, "обработать входящие данные из внешнего источника EMAKS goida.com")]
+
+
+def test_task_iter_base_work():
+    source = GeneratorSource(10, 2)
+    it = get_task_iter_from_source(source)
+    assert it.__next__() == Task(1139, "перераспределить ресурсы на recroll.en")
+    assert it.__next__() == Task(1305, "обработать входящие данные из внешнего источника EMAKS goida.com")
 
 
 def test_task_getting_incorrect_sources():
