@@ -2,6 +2,10 @@ from typing import TextIO
 from os import SEEK_SET
 
 
+class FileSourceError(Exception):
+    ...
+
+
 class FileSource:
     """
     Источник данных файл
@@ -12,8 +16,19 @@ class FileSource:
     def __init__(self, file: str):
         self.file = open(file, "r")
 
-    def get_task(self) -> str:
-        return self.file.readline()[:-1]
+    def get_task(self) -> dict:
+        text = self.file.readline()[:-1]
+        if text != "Task {":
+            raise FileSourceError("некорректный формат записи task")
+        task = dict()
+        text = self.file.readline()[:-1]
+        while text != "}":
+            if ":" not in text:
+                raise FileSourceError("некорректный формат записи полей task")
+            k = text.split(":", 1)
+            task[k[0]] = k[1]
+            text = self.file.readline()[:-1]
+        return task
 
     def is_tasks_ended(self) -> bool:
         sav = self.file.tell()

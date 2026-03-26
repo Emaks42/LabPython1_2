@@ -1,17 +1,6 @@
-from dataclasses import dataclass
 from protocol_source import TaskSource
 from typing import Iterable
-
-
-@dataclass
-class Task:
-    """
-    Простой класс, описывающий задачу в системе
-    :cvar uid - id задачи
-    :cvar payload - содержание задачи
-    """
-    uid: int
-    payload: str
+from src.task import Task
 
 
 def get_tasks_from_source(source: TaskSource) -> Iterable[Task]:
@@ -25,15 +14,9 @@ def get_tasks_from_source(source: TaskSource) -> Iterable[Task]:
     tasks: list[Task] = []
     while not source.is_tasks_ended():
         task = source.get_task()
-        if not isinstance(task, str):
-            raise ValueError(f"incorrect type of task, expected str, got \"{type(task)}\"")
-        task = task.split(" - ", 1)
-        if len(task) != 2:
-            raise ValueError(f"corrupted task \"{' - '.join(task)}\"")
-        try:
-            tasks.append(Task(int(task[0]), task[1]))
-        except ValueError:
-            raise ValueError(f"corrupted task \"{' - '.join(task)}\"")
+        if not isinstance(task, dict):
+            raise ValueError(f"incorrect type of task, expected dict, got \"{type(task)}\"")
+        tasks.append(Task.from_dict(task))
     return tasks
 
 
@@ -47,12 +30,6 @@ def get_task_iter_from_source(source: TaskSource):
         raise ValueError("incorrect data source")
     while not source.is_tasks_ended():
         task = source.get_task()
-        if not isinstance(task, str):
-            raise ValueError(f"incorrect type of task, expected str, got \"{type(task)}\"")
-        task = task.split(" - ", 1)
-        if len(task) != 2:
-            raise ValueError(f"corrupted task \"{' - '.join(task)}\"")
-        try:
-            yield Task(int(task[0]), task[1])
-        except ValueError:
-            raise ValueError(f"corrupted task \"{' - '.join(task)}\"")
+        if not isinstance(task, dict):
+            raise ValueError(f"incorrect type of task, expected dict, got \"{type(task)}\"")
+        yield Task.from_dict(task)

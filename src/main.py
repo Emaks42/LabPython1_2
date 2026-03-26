@@ -17,14 +17,18 @@ def main() -> None:
             inp_ = input("$ > ")
             continue
         if inp[0] == "read_file":
-            if len(inp) == 2:
+            if len(inp) == 1:
+                print("недостаточно аргументов")
+            elif len(inp) == 2:
                 print("Данные из файла:")
                 file = FileSource(inp[1])
                 print(*get_tasks_from_source(file), sep="\n")
             else:
                 print("слишком много аргументов")
         elif inp[0] == "listen_api":
-            if len(inp) == 2:
+            if len(inp) == 1:
+                print("недостаточно аргументов")
+            elif len(inp) == 2:
                 print("Данные из апи:")
                 api = APISource(inp[1])
                 print(*get_tasks_from_source(api), sep="\n")

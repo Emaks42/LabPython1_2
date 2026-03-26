@@ -17,7 +17,7 @@ class APISource:
         self.timeout = int((sha256(address.encode())).hexdigest()[:3], 16)
         self.time = perf_counter_ns()
 
-    def get_task(self) -> str:
+    def get_task(self) -> dict:
         sleep(0.00001 * randint(1, 3) * self.timeout)
         return API_ANSWERS[(perf_counter_ns() - self.time) % len(API_ANSWERS)]
 

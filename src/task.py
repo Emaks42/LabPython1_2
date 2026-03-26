@@ -28,7 +28,7 @@ class Task:
     def __getattribute__(self, item):
         if item[:2] == "__":
             raise TaskError("убедительная просьба не получать скрытые атрибуты класса напрямую")
-        super().__getattribute__(item)
+        return super().__getattribute__(item)
 
     @property
     def id(self) -> int | None: return self.__id
@@ -75,7 +75,7 @@ class Task:
             return
         if isinstance(val, int):
             if 0 < val < 6:
-                self.__description = val
+                self.__priority = val
             else:
                 raise TaskError("значение priority должно быть в диапазоне от 1 до 5")
         else:
@@ -130,3 +130,7 @@ class Task:
     def from_dict(cls, dict_):
         return cls(dict_.get("id"), dict_.get("description"), dict_.get("priority"),
                    dict_.get("status"), dict_.get("creation_time"), dict_.get("deadline"))
+
+    def __str__(self):
+        return f"Task. id: {self.id}, description: {self.description}, status: {self.status}, " \
+               f"creation time: {self.creation_time}, priority: {self.priority}, deadline: {self.deadline}"

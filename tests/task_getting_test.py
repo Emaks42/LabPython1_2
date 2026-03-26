@@ -8,8 +8,8 @@ class IncorrectSource1:
     def __init__(self):
         self.abc = 0
 
-    def get_task(self) -> str:
-        return str(self.abc)
+    def get_task(self) -> dict:
+        return {20320: 10}
 
 
 class IncorrectSource2:
