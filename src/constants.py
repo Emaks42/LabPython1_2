@@ -5,3 +5,4 @@ TASK_PURPOSES = ["обработать входящие данные из вне
                 "отправить уведомление пользователю", "проверить состояние сервиса", "перераспределить ресурсы на",
                 "ожидать ответа от"]
 TASK_DESTINATIONS = ["mai.ru", "goida.com", "recroll.en", "NIICHAVO.su", "eeva.team", "EMAKS"]
+POSSIBLE_STATUSES = ["CREATED", "IN_PROCESS", "DONE"]
