@@ -26,7 +26,7 @@ class FileSource:
             if ":" not in text:
                 raise FileSourceError("некорректный формат записи полей task")
             k = text.split(":", 1)
-            task[k[0]] = k[1]
+            task[k[0]] = k[1].strip()
             text = self.file.readline()[:-1]
         return task
 

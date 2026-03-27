@@ -6,6 +6,33 @@ class TaskError(Exception):
     ...
 
 
+class FieldValidator:
+    limitations: tuple[int, int] | list[str] | None
+    type: type
+
+    def __init__(self, lim, type_):
+        self.limitations = lim
+        self.type = type_
+
+    def __call__(self, func):
+        def foo(obj, val):
+            if not isinstance(val, self.type):
+                if isinstance(val, str):
+                    val = self.type(val.strip())
+                elif val is not None:
+                    raise TaskError(f"значение {func.__name__} должно быть {self.type}")
+            if isinstance(self.limitations, tuple):
+                if not (self.limitations[0] < val < self.limitations[1]):
+                    raise TaskError(
+                        f"значение {func.__name__} должно быть в диапазоне от {self.limitations[0]} до " +
+                        f"{self.limitations[1]}")
+            elif isinstance(self.limitations, list):
+                if val not in self.limitations:
+                    raise TaskError(f"значение {func.__name__} должно быть в диапазоне {self.limitations}")
+            func(obj, val)
+        return foo
+
+
 class Task:
     """
     Класс, описывающий задачу в системе
@@ -13,12 +40,14 @@ class Task:
     __slots__ = ('__id', '__description', '__priority', '__status', '__creation_time', '__deadline')
 
     def __init__(self, id_, description, priority, status, creation_time, deadline):
+        self.__deadline = self.__priority = self.__status = self.__id = self.__description = None
+        self.__creation_time = None
         self.id = id_
         self.description = description
         self.priority = priority
         self.status = status
-        self.deadline = deadline
         self.creation_time = creation_time
+        self.deadline = deadline
 
     def __setattr__(self, key, value):
         if key[:2] == "__":
@@ -49,70 +78,40 @@ class Task:
     def status(self) -> str | None: return self.__status
 
     @id.setter
+    @FieldValidator(None, int)
     def id(self, val):
-        if val is None:
-            self.__id = val
-            return
-        if isinstance(val, int):
-            self.__id = val
-        else:
-            raise TaskError("значение id должно быть int")
+        self.__id = val
 
     @description.setter
+    @FieldValidator(None, str)
     def description(self, val):
-        if val is None:
-            self.__description = val
-            return
-        if isinstance(val, str):
-            self.__description = val
-        else:
-            raise TaskError("значение id должно быть str")
+        self.__description = val
 
     @priority.setter
+    @FieldValidator((0, 6), int)
     def priority(self, val):
-        if val is None:
-            self.__priority = val
-            return
-        if isinstance(val, int):
-            if 0 < val < 6:
-                self.__priority = val
-            else:
-                raise TaskError("значение priority должно быть в диапазоне от 1 до 5")
-        else:
-            raise TaskError("значение priority должно быть int")
+        self.__priority = val
 
     @status.setter
+    @FieldValidator(POSSIBLE_STATUSES, str)
     def status(self, val):
-        if val is None:
-            self.__status = val
-            return
-        if val in POSSIBLE_STATUSES:
-            self.__status = val
-        else:
-            raise TaskError(f"значение status должно быть в диапазоне {POSSIBLE_STATUSES}")
+        self.__status = val
 
     @creation_time.setter
+    @FieldValidator(None, datetime.datetime)
     def creation_time(self, val):
-        if val is None:
-            self.__creation_time = val
-            return
-        if isinstance(val, datetime.datetime):
-            self.__creation_time = val
-        else:
-            raise ValueError("значение creation_time должно быть в формате datetime.datetime")
+        self.__creation_time = val
 
     @deadline.setter
+    @FieldValidator(None, datetime.datetime)
     def deadline(self, val):
         if val is None:
             self.__deadline = val
             return
-        if isinstance(val, datetime.datetime):
-            if val > self.creation_time:
-                self.__deadline = val
-            else:
-                raise TaskError("Задача не должна иметь дедлайн раньше времени своего создания")
+        if val > self.creation_time:
+            self.__deadline = val
         else:
-            raise ValueError("значение deadline должно быть в формате datetime.datetime")
+            raise TaskError("Задача не должна иметь дедлайн раньше времени своего создания")
 
     @property
     def is_outdated(self):
