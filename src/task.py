@@ -15,7 +15,7 @@ class FieldValidator:
         self.type = type_
 
     def __call__(self, func):
-        def foo(obj, val):
+        def wrapper(obj, val):
             all_skip = False
             if not isinstance(val, self.type):
                 if isinstance(val, str):
@@ -33,7 +33,7 @@ class FieldValidator:
                 if val not in self.limitations:
                     raise TaskError(f"значение {func.__name__} должно быть в диапазоне {self.limitations}")
             func(obj, val)
-        return foo
+        return wrapper
 
 
 class Task:
