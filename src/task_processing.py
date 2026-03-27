@@ -1,9 +1,8 @@
 from protocol_source import TaskSource
-from typing import Iterable
 from src.task import Task
 
 
-def get_tasks_from_source(source: TaskSource) -> Iterable[Task]:
+def get_tasks_from_source(source: TaskSource) -> list[Task]:
     """
     Функция, получающая задачи из источника, описанного протоколом
     :param source: источник данных

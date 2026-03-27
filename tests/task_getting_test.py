@@ -1,5 +1,5 @@
 import pytest
-from src.file_source import FileSource
+from src.file_source import FileSource, FileSourceError
 from src.generator_source import GeneratorSource
 from src.task_processing import get_tasks_from_source, Task, get_task_iter_from_source
 
@@ -33,15 +33,22 @@ class IncorrectSource3:
 
 def test_task_getting_base_work():
     source = GeneratorSource(10, 2)
-    assert get_tasks_from_source(source) == [Task(1139, "перераспределить ресурсы на recroll.en"),
-                                    Task(1305, "обработать входящие данные из внешнего источника EMAKS goida.com")]
+    gen = get_tasks_from_source(source)
+    assert gen[0] == Task(2882, "перераспределить ресурсы на recroll.en", 5,
+                          "CREATED", None, None)
+    assert gen[1] == Task(1732,
+                          "проверить состояние ресурса mai.ru goida.com", 2,
+                          "CREATED", None, None)
 
 
 def test_task_iter_base_work():
     source = GeneratorSource(10, 2)
     it = get_task_iter_from_source(source)
-    assert it.__next__() == Task(1139, "перераспределить ресурсы на recroll.en")
-    assert it.__next__() == Task(1305, "обработать входящие данные из внешнего источника EMAKS goida.com")
+    assert it.__next__() == Task(2882, "перераспределить ресурсы на recroll.en", 5,
+                                 "CREATED", None, None)
+    assert it.__next__() == Task(1732,
+                                 "проверить состояние ресурса mai.ru goida.com", 2,
+                                 "CREATED", None, None)
 
 
 def test_task_getting_incorrect_sources():
@@ -56,7 +63,7 @@ def test_task_getting_incorrect_sources():
 
 
 def test_file_source_corrupted_files(files):
-    with pytest.raises(ValueError):
+    with pytest.raises(FileSourceError):
         get_tasks_from_source(FileSource(files["corr_1"]))
-    with pytest.raises(ValueError):
+    with pytest.raises(FileSourceError):
         get_tasks_from_source(FileSource(files["corr_2"]))

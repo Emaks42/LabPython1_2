@@ -16,17 +16,20 @@ class FieldValidator:
 
     def __call__(self, func):
         def foo(obj, val):
+            all_skip = False
             if not isinstance(val, self.type):
                 if isinstance(val, str):
                     val = self.type(val.strip())
                 elif val is not None:
                     raise TaskError(f"значение {func.__name__} должно быть {self.type}")
-            if isinstance(self.limitations, tuple):
+                if val is None:
+                    all_skip = True
+            if isinstance(self.limitations, tuple) and not all_skip:
                 if not (self.limitations[0] < val < self.limitations[1]):
                     raise TaskError(
                         f"значение {func.__name__} должно быть в диапазоне от {self.limitations[0]} до " +
                         f"{self.limitations[1]}")
-            elif isinstance(self.limitations, list):
+            elif isinstance(self.limitations, list) and not all_skip:
                 if val not in self.limitations:
                     raise TaskError(f"значение {func.__name__} должно быть в диапазоне {self.limitations}")
             func(obj, val)
@@ -53,11 +56,6 @@ class Task:
         if key[:2] == "__":
             raise TaskError("убедительная просьба не изменять скрытые атрибуты класса напрямую")
         super().__setattr__(key, value)
-
-    def __getattribute__(self, item):
-        if item[:2] == "__":
-            raise TaskError("убедительная просьба не получать скрытые атрибуты класса напрямую")
-        return super().__getattribute__(item)
 
     @property
     def id(self) -> int | None: return self.__id
@@ -105,7 +103,7 @@ class Task:
     @deadline.setter
     @FieldValidator(None, datetime.datetime)
     def deadline(self, val):
-        if val is None:
+        if val is None or self.creation_time is None:
             self.__deadline = val
             return
         if val > self.creation_time:
@@ -133,3 +131,10 @@ class Task:
     def __str__(self):
         return f"Task. id: {self.id}, description: {self.description}, status: {self.status}, " \
                f"creation time: {self.creation_time}, priority: {self.priority}, deadline: {self.deadline}"
+
+    def __eq__(self, other):
+        if isinstance(other, Task):
+            return other.deadline == self.deadline and other.priority == self.priority \
+                    and other.creation_time == self.creation_time and other.status == self.status\
+                    and other.description == self.description and self.id == other.id
+        return False
