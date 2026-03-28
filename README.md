@@ -20,11 +20,11 @@
 
 В папке [src](./src) лежат файлы с реализацией задачи данной в лабораторной работы. Осонвным файлом является файл
 [main.py](./src/main.py) в котором описана точка входа в приложение - функция **main**. Также в этой папке лежат файлы
-[task_processing.py](./src/task_processing.py), содержащий в себе функции приёма задач,
-[task.py](./src/task.py), в котором описывается класс задачи,
-[protocol_source.py](./src/protocol_source.py), в котором с помощью Protocol описан общий поведенческий контракт для
-испточников задач, три файла [api_source.py](./src/api_source.py), [generator_source.py](./src/generator_source.py) и
-[file_source.py](./src/file_source.py), содержащие в себе описание классов источников задач (API, генератора и файла),
+[task_processing.py](src/task_working/task_processing.py), содержащий в себе функции приёма задач,
+[task.py](src/task_working/task.py), в котором описывается класс задачи,
+[protocol_source.py](src/task_sources/protocol_source.py), в котором с помощью Protocol описан общий поведенческий контракт для
+испточников задач, три файла [api_source.py](src/task_sources/api_source.py), [generator_source.py](src/task_sources/generator_source.py) и
+[file_source.py](src/task_sources/file_source.py), содержащие в себе описание классов источников задач (API, генератора и файла),
 [constants.py](./src/constants.py) - константы, необходимые для работы программы (в основном для генераторов случайных
 задач). Файл [file_](./src/file_) является файлом для проверки работы файлового источника задач.
 

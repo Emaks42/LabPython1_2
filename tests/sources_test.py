@@ -1,6 +1,6 @@
-from src.file_source import FileSource
-from src.generator_source import GeneratorSource
-from src.api_source import APISource
+from src.task_sources.file_source import FileSource
+from src.task_sources.generator_source import GeneratorSource
+from src.task_sources.api_source import APISource
 
 
 def test_file_source_task_getting(files):

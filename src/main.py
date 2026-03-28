@@ -1,7 +1,7 @@
-from src.file_source import FileSource
-from src.api_source import APISource
-from src.generator_source import GeneratorSource
-from src.task_processing import get_tasks_from_source
+from src.task_sources.file_source import FileSource
+from src.task_sources.api_source import APISource
+from src.task_sources.generator_source import GeneratorSource
+from src.task_working.task_processing import get_tasks_from_source
 
 
 def main() -> None:

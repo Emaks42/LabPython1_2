@@ -1,7 +1,7 @@
 import pytest
-from src.file_source import FileSource, FileSourceError
-from src.generator_source import GeneratorSource
-from src.task_processing import get_tasks_from_source, Task, get_task_iter_from_source
+from src.task_sources.file_source import FileSource, FileSourceError
+from src.task_sources.generator_source import GeneratorSource
+from src.task_working.task_processing import get_tasks_from_source, Task, get_task_iter_from_source
 
 
 class IncorrectSource1:

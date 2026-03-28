@@ -23,7 +23,7 @@ module = "tests.*"
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = "src.task"
+module = "src.task_working.task"
 ignore_errors = true
 
 [tool.uv]
