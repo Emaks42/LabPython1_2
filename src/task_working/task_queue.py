@@ -10,6 +10,7 @@ class TaskQueueError(Exception):
 
 
 class ValidatedField:
+    """Дескриптор для валидации полей"""
     def __init__(self, lim, type_, name, err_type: Type = TaskQueueError):
         self.limitations = lim
         self.type = type_
@@ -40,6 +41,9 @@ class ValidatedField:
 
 
 class TaskIterator:
+    """Итератор для работы с TaskQueue
+    :cvar gen - генератор
+    """
     gen: Generator
 
     def __init__(self, sources: list[TaskSource], order: list[int], task_list: list[Task] | None = None,
@@ -75,6 +79,12 @@ class TaskIterator:
 
 
 class TaskQueue:
+    """
+    Очередь задач, подерживающая итерацию и получение информации из источников и ленивые фильтры
+    :cvar sources - набор источников задач
+    :cvar order - порядок обращения к источникам
+    :cvar tasks - список задач
+    """
     sources: list[tuple[Type, Dict[str, Any]]]
     order: list[int]
     tasks: list[Task]
@@ -144,14 +154,11 @@ class TaskQueue:
                     continue
             pushed_tasks = yield new_task
             if pushed_tasks is not None:
-                print("peep")
                 if isinstance(pushed_tasks, Iterable):
-                    print("beep")
                     if any(not isinstance(task, Task) for task in pushed_tasks):
                         raise TaskQueueError("нельзя передавать в очередь задач не объекты класса Task")
                     tasks.extend(pushed_tasks)
                 else:
-                    print("keep")
                     if not isinstance(pushed_tasks, Task):
                         raise TaskQueueError("нельзя передавать в очередь задач не объекты класса Task")
                     tasks.append(pushed_tasks)

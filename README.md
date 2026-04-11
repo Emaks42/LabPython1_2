@@ -1,8 +1,9 @@
-# Лабораторные работы 1-2 второй семестр
+# Лабораторные работы 1-3 второй семестр
 
 ## Введение
-В данной лабораторной работе был создан модуль приёма задач, способный работать с несколькими разными источниками
-задач через единый контракт, также разработан класс задачи с достаточно безопасным публичным API
+В данной лабораторной работе был разработан модуль приёма задач, способный работать с несколькими разными источниками
+задач через единый контракт, класс задачи с достаточно безопасным публичным API и очередь задач, совместимая со
+стандартными конструкциями языка python
 
 
 ## Структура проекта
@@ -21,7 +22,8 @@
 В папке [src](./src) лежат файлы с реализацией задачи данной в лабораторной работы. Осонвным файлом является файл
 [main.py](./src/main.py) в котором описана точка входа в приложение - функция **main**. Также в этой папке лежат файлы
 [task_processing.py](src/task_working/task_processing.py), содержащий в себе функции приёма задач,
-[task.py](src/task_working/task.py), в котором описывается класс задачи,
+[task.py](src/task_working/task.py), в котором описывается класс задачи, [task_queue.py](src/task_working/task_queue.py),
+в котором описывается класс очереди задач,
 [protocol_source.py](src/task_sources/protocol_source.py), в котором с помощью Protocol описан общий поведенческий контракт для
 испточников задач, три файла [api_source.py](src/task_sources/api_source.py), [generator_source.py](src/task_sources/generator_source.py) и
 [file_source.py](src/task_sources/file_source.py), содержащие в себе описание классов источников задач (API, генератора и файла),
@@ -32,8 +34,9 @@
 для тестирования чтения задач из файла.
 Используется библиотека pytest. В файле [sources_test.py](./tests/sources_test.py) лежат тесты для источников задач,
 а именно того, что они могут работать в стандартном режиме, в файле [task_test.py](./tests/task_test.py) находятся тесты для
-проверки инкапсуляции класса задачи и её особых дескрипторов.
-в файле [run_sim_test.py](./tests/task_getting_test.py) происходит проверка корректности работы чтения задач из источников.
+проверки инкапсуляции класса задачи и её особых дескрипторов, в файле в файле [task_queue_test.py](./tests/task_queue_test.py)
+расположены тесты для класса TaskQueue.
+в файле [task_getting_test.py](./tests/task_getting_test.py) происходит проверка корректности работы чтения задач из источников.
 Есть файл [conftest.py](./tests/conftest.py), задающий базовые фикстуры для тестов
 
 В качестве пакетного менджера в данном репозитории используется [uv](https://github.com/astral-sh/uv).
@@ -49,12 +52,29 @@
 ## Алгоритм решения
 ### CLI
 
-CLI позволяет пользователю вводить одну из трёх команд:
+CLI позволяет пользователю вводить одну из четырёх команд:
 <ul>
 <li>listen_api [addr] - получить задачи из API</li>
 <li>generate_tasks [seed] [amount] - генерирует amount задач по сиду seed, можно запускать без аргументов или только с
 seed</li>
 <li>read_file [filename] - читает задачи из файла</li>
+<li>tq - переход в режим интерактивной очереди задач</li>
+</ul>
+
+Перед запуском интерактивной очереди вводятся источники задач (формат как в обычном CLI) и их порядок (однострочный список)
+
+Режим интерактивной очереди позволяет ввести следющие команды:
+<ul>
+<li>push [task] - добавить в очередь задачу</li>
+<li>pop - забрать первую задачу из очереди</li>
+<li>print - вывести содержимое очереди</li>
+<li>gen - перейти в режим работы с интерактивным генератором</li>
+</ul>
+
+Режим интерактивного генератора использует следующие команды:
+<ul>
+<li>send [task] - добавить в генератор задачу</li>
+<li>next - вывести след. задачу</li>
 </ul>
 
 ### Общий поведенческий контракт
@@ -182,7 +202,7 @@ def deadline(self, val):
 
 Для этой цели используется slots, выделяющий фиксированный объём памяти под заранее определённые атрибуты
 
-Доступ к самому slots болкируется и он неизменяем извне класса.
+Доступ к самому slots блокируется и он неизменяем извне класса.
 
 ### Дополнительные возможности
 
@@ -199,6 +219,76 @@ def deadline(self, val):
 Возможностью сборки объекта класса из словаря
 </li>
 </ol>
+
+## Особенности реализации TaskQueue
+
+**Замечание**: так как в ТЗ к лабораторной работе не было указанно, как именно должна работать очередь задач,
+поэтому реализация данного объекта
+является импровизацией автора работы (и по сути представляет из себя комбинацию двух вариантов, а именно
+АТД очереди и объекта-агрегации нескольких источников задач)
+
+### Структура объекта очереди
+При создании объекта TaskQueue можно указать следующие параметры:
+1. Список источников задач в формате tuple(класс (не объект!), словарь параметров),
+это сделано для того, чтобы при повторном обходе очереди создавались новые источники
+(иначе могут возникнуть проблемы с корректной работой источников, например у файлового
+источника будут проблемы с дублированием)
+2. Список целых чисел - порядок обращения к источникам (индекс источника в списке)
+3. Список задач - начальное тело очереди
+4. Фильтры по приоритету и статусу
+
+### Итерация
+Объект TaskQueue является итерируемым с особым способом обхода:
+1. Извлекаются все задачи из тела очереди (переменная объекта tasks)
+2. Происходит последовательный обход источников в указанном порядке, если в источнике
+   закончились задачи, то он пропускается, итерация заканчивается, когда все источники закончились
+
+**Поддерживаются фильтры по приоритету и статусу**
+
+### TaskIterator
+Для корректной работы повторного обхода очереди был создан отдельный класс TaskIterator, который при создании собирает
+из данных на момент вызова iter объект генератора, который потом вызывается при использовании next
+
+### Генератор
+Также в самом классе TaskQueue есть функция get_generator, возвращающая особый генератор, его отличие от генератора из
+TaskIterator заключается в том, что он позволяет добавить элементы в себя (они добавляются к списку задач),
+тем самым этот генератор позволяет реализовать интерактивный режим взаимодействия с очередью, с сохранением
+состояний источников
+
+### Обработка некорректных значений
+При передаче некорректных значений в TaskQueue могут быть ошибки типа TaskQueueError. Также поля фильтров являются
+дескрипторами
+<pre>
+class ValidatedField:
+    def __init__(self, lim, type_, name, err_type: Type = TaskQueueError):
+        self.limitations = lim
+        self.type = type_
+        self.name = "__" + name
+        self.err_type = err_type
+
+    def __get__(self, instance, owner):
+        return instance.__dict__[self.name]
+
+    def __set__(self, instance, val):
+        all_skip = False
+        if not isinstance(val, self.type):
+            if isinstance(val, str):
+                val = self.type(val.strip())
+            elif val is not None:
+                raise self.err_type(f"значение {self.name[2:]} должно быть {self.type}")
+            if val is None:
+                all_skip = True
+        if isinstance(self.limitations, tuple) and not all_skip:
+            if not (self.limitations[0] < val < self.limitations[1]):
+                raise self.err_type(
+                    f"значение {self.name[2:]} должно быть в диапазоне от {self.limitations[0]} до " +
+                    f"{self.limitations[1]}")
+        elif isinstance(self.limitations, list) and not all_skip:
+            if val not in self.limitations:
+                raise self.err_type(f"значение {self.name[2:]} должно быть в диапазоне {self.limitations}")
+        instance.__dict__[self.name] = val
+</pre>
+
 
 ## Тестирование
 Для тестирования используется модуль pytest. Также используется возможность pytest.fixture.
@@ -221,24 +311,23 @@ def files():
                  "corr_2": "tests"+os.sep+"corrupted_file_2"}
     file_1 = open(filenames["common"], "w")
     file_1.write("""Task {
-    id: 140
-    description: обработать заказ с идентификатором 402
-    priority: 5
-    status: CREATED
-    }
-    Task {
-    id: 1001
-    description: отправить уведомление пользователю EMAKS
-    priority: 2
-    status: DONE
-    }
-    Task {
-    id: 319
-    description: проверить состояние сервиса eeva.team recroll.en
-    priority: 1
-    status: DONE
-    }
-    """)
+id: 140
+description: обработать заказ с идентификатором 402
+priority: 5
+status: CREATED
+}
+Task {
+id: 1001
+description: отправить уведомление пользователю EMAKS
+priority: 2
+status: DONE
+}
+Task {
+id: 319
+description: проверить состояние сервиса eeva.team recroll.en
+priority: 1
+status: DONE
+}\n""")
     file_1.close()
     file_2 = open(filenames["corr_1"], "w")
     file_2.write("10a - f")
@@ -252,6 +341,21 @@ def files():
 </pre>
 
 В этом файле создаются базовые фикстуры для работы с файлами
+
+### Фикстуры для тестирования TaskQueue
+
+<pre>
+@pytest.fixture
+def arr_queue():
+    return TaskQueue([], [], [Task.from_dict({"id": 12}), Task.from_dict({"id": 13})])
+
+
+@pytest.fixture
+def source_queue():
+    return TaskQueue([(GeneratorSource, {"amount_of_tasks": 3, "seed": 10}),
+                      (GeneratorSource, {"amount_of_tasks": 2, "seed": 12})],
+                     [0, 1, 1])
+</pre>
 
 ### Примеры тестов
 
@@ -364,6 +468,86 @@ def test_incorrect_limits():
 
 *в первом случае используется несуществующий статус задачи, во втором приоритет за рамками [1;5]*
 
-Все тесты в сумме покрывают примерно 96% кода из src. Всего есть ~14 тестов (так как размер и сложность кодовой базы
+Тестирование базовой работы очереди задач
+
+<pre>
+def test_base_work(arr_queue):
+    arr_queue.push(Task.from_dict({"id": 14}))
+    assert list(arr_queue) == [Task.from_dict({"id": 12}), Task.from_dict({"id": 13}), Task.from_dict({"id": 14})]
+    assert arr_queue.pop() == Task.from_dict({"id": 12})
+    assert arr_queue.pop() == Task.from_dict({"id": 13})
+    arr_queue.push_task_list([Task.from_dict({"id": 15}), Task.from_dict({"id": 16})])
+    assert arr_queue.pop() == Task.from_dict({"id": 14})
+    assert arr_queue.pop() == Task.from_dict({"id": 15})
+</pre>
+
+Тестирование двойного обхода
+
+<pre>
+def test_two_cycles(arr_queue):
+    a = list(arr_queue)
+    i, j = 0, 0
+    for task1 in arr_queue:
+        for task2 in arr_queue:
+            assert task1 == a[i]
+            assert task2 == a[j]
+            j += 1
+        j = 0
+        i += 1
+</pre>
+
+Тестирование корректности порядка задач из нескольких источников
+
+<pre>
+def test_source_order_work(source_queue):
+    it = iter(source_queue)
+    assert next(it) == Task.from_dict({"id": 2882, "description": "перераспределить ресурсы на recroll.en",
+                                      "status": "CREATED", "priority": 5})
+    assert next(it) == Task.from_dict({"id": 1211, "description": "ожидать ответа от eeva.team recroll.en",
+                                       "status": "DONE", "priority": 3})
+    assert next(it) == Task.from_dict({"id": 3557,
+                                       "description": "обработать входящие данные из внешнего источника "
+                                                      "recroll.en EMAKS",
+                                       "status": "CREATED", "priority": 3})
+    assert next(it) == Task.from_dict({"id": 1732, "description": "проверить состояние ресурса mai.ru goida.com",
+                                       "status": "CREATED", "priority": 2})
+    assert next(it) == Task.from_dict({"id": 1357, "description": "перераспределить ресурсы на eeva.team NIICHAVO.su",
+                                       "status": "DONE", "priority": 3})
+</pre>
+
+Тестирование работы генератора
+
+<pre>
+def test_generator_working(source_queue):
+    gen = source_queue.get_generator()
+    assert next(gen) == Task.from_dict({"id": 2882, "description": "перераспределить ресурсы на recroll.en",
+                                        "status": "CREATED", "priority": 5})
+    assert gen.send(Task.from_dict({"id": 10})) == Task.from_dict({"id": 10})
+    assert next(gen) == Task.from_dict({"id": 1211, "description": "ожидать ответа от eeva.team recroll.en",
+                                       "status": "DONE", "priority": 3})
+</pre>
+
+Тестирование валидации полей TaskQueue
+
+<pre>
+def test_incorrect_sources():
+    with pytest.raises(TaskQueueError):
+        TaskQueue([(IncorrectSource1, {})], [0])
+    with pytest.raises(TaskQueueError):
+        TaskQueue([(IncorrectSource2, {})], [0])
+
+
+def test_incorrect_order():
+    with pytest.raises(TaskQueueError):
+        TaskQueue([(GeneratorSource, {})], [5])
+
+
+def test_incorrect_task_list():
+    with pytest.raises(TaskQueueError):
+        TaskQueue([(GeneratorSource, {})], [0], [102])
+</pre>
+
+
+Все тесты в сумме покрывают примерно 93% кода из src. Всего есть ~25 тестов (так как размер и сложность кодовой базы
 работы небольшие потребовалось небольшое количество тестов, отдельно хотелось бы отметить, что нет тестов для ошибок в
-итераторе, так как его код почти не отличается от кода обычной функции получения задач).
+итераторе и генераторе, так как их код почти не отличается от кода обычной функций).

@@ -1,6 +1,6 @@
 import random
 from hashlib import sha256
-from constants import TASK_PURPOSES, TASK_DESTINATIONS, POSSIBLE_STATUSES
+from src.constants import TASK_PURPOSES, TASK_DESTINATIONS, POSSIBLE_STATUSES, PRIORITY_LIMITATIONS
 
 
 class GeneratorSource:
@@ -28,7 +28,7 @@ class GeneratorSource:
         for i in range(destinations_amount):
             task += " " + random.choice(TASK_DESTINATIONS)
         status = random.choice(POSSIBLE_STATUSES)
-        prior = random.randint(1, 5)
+        prior = random.randint(PRIORITY_LIMITATIONS[0] + 1, PRIORITY_LIMITATIONS[1] - 1)
         self.seed = random.random()
         id_ = int((sha256((task + status).encode())).hexdigest()[:3], 16)
         self.returned_tasks_count += 1
