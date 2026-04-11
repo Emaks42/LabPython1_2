@@ -1,5 +1,5 @@
 import datetime
-from src.constants import POSSIBLE_STATUSES
+from src.constants import POSSIBLE_STATUSES, PRIORITY_LIMITATIONS
 
 
 class TaskError(Exception):
@@ -86,7 +86,7 @@ class Task:
         self.__description = val
 
     @priority.setter
-    @FieldValidator((0, 6), int)
+    @FieldValidator(PRIORITY_LIMITATIONS, int)
     def priority(self, val):
         self.__priority = val
 

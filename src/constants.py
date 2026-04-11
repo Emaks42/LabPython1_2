@@ -7,3 +7,4 @@ TASK_PURPOSES = ["обработать входящие данные из вне
                 "ожидать ответа от"]
 TASK_DESTINATIONS = ["mai.ru", "goida.com", "recroll.en", "NIICHAVO.su", "eeva.team", "EMAKS"]
 POSSIBLE_STATUSES = ["CREATED", "IN_PROCESS", "DONE"]
+PRIORITY_LIMITATIONS = (0, 6)
