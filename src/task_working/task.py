@@ -134,7 +134,30 @@ class Task:
 
     def __eq__(self, other):
         if isinstance(other, Task):
-            return other.deadline == self.deadline and other.priority == self.priority \
-                    and other.creation_time == self.creation_time and other.status == self.status\
-                    and other.description == self.description and self.id == other.id
+            ans = True
+            if self.deadline is not None and other.deadline is not None:
+                ans = ans and other.deadline == self.deadline
+            else:
+                ans = ans and other.deadline is self.deadline
+            if self.priority is not None and other.priority is not None:
+                ans = ans and other.priority == self.priority
+            else:
+                ans = ans and other.priority is self.priority
+            if self.creation_time is not None and other.creation_time is not None:
+                ans = ans and other.creation_time == self.creation_time
+            else:
+                ans = ans and other.creation_time is self.creation_time
+            if self.status is not None and other.status is not None:
+                ans = ans and other.status == self.status
+            else:
+                ans = ans and other.status is self.status
+            if self.description is not None and other.description is not None:
+                ans = ans and other.description == self.description
+            else:
+                ans = ans and other.description is self.description
+            if self.id is not None and other.id is not None:
+                ans = ans and self.id == other.id
+            else:
+                ans = ans and self.id is other.id
+            return ans
         return False

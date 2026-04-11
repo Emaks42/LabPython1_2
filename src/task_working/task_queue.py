@@ -48,7 +48,7 @@ class TaskIterator:
             tasks = deepcopy(task_list) or []
             ended_sources = [0] * len(sources)
             pos = 0
-            while sum(ended_sources) != len(sources):
+            while sum(ended_sources) != len(sources) or len(tasks) > 0:
                 if len(tasks) != 0:
                     new_task = tasks.pop(0)
                 else:
@@ -84,7 +84,7 @@ class TaskQueue:
     def __init__(self, sources: list[tuple[Type, Dict[str, Any]]], order: list[int], tasks: list[Task] | None = None,
                  prior_filter: int | None = None, status_filter: int | None = None):
         for source in sources:
-            if not isinstance(source[0], TaskSource):
+            if not issubclass(source[0], TaskSource):
                 raise TaskQueueError("нельзя передавать в очередь задач не объекты, " +
                                      "не реализующие контракт источника задач")
         self.sources = sources
@@ -126,6 +126,7 @@ class TaskQueue:
         sources = [source[0](**source[1]) for source in self.sources]
         pos = 0
         while sum(ended_sources) != len(self.sources) or len(tasks) > 0:
+            print(tasks)
             if len(tasks) != 0:
                 new_task = tasks.pop(0)
             else:
@@ -135,19 +136,22 @@ class TaskQueue:
                 pos = (pos + 1) % len(self.order)
                 while ended_sources[self.order[pos]] and sum(ended_sources) != len(sources):
                     pos = (pos + 1) % len(self.order)
-            if self.prior_filter:
+            if self.prior_filter is not None:
                 if new_task.priority != self.prior_filter:
                     continue
-            if self.status_filter:
+            if self.status_filter is not None:
                 if new_task.status != self.status_filter:
                     continue
             pushed_tasks = yield new_task
             if pushed_tasks is not None:
+                print("peep")
                 if isinstance(pushed_tasks, Iterable):
+                    print("beep")
                     if any(not isinstance(task, Task) for task in pushed_tasks):
                         raise TaskQueueError("нельзя передавать в очередь задач не объекты класса Task")
                     tasks.extend(pushed_tasks)
                 else:
-                    if not isinstance(pushed_tasks,Task):
+                    print("keep")
+                    if not isinstance(pushed_tasks, Task):
                         raise TaskQueueError("нельзя передавать в очередь задач не объекты класса Task")
                     tasks.append(pushed_tasks)
