@@ -52,7 +52,7 @@ pythonpath = ["src"]
 source = ["src"]
 branch = true
 parallel = true
-omit = ["*/__init__.py", "*/main.py"]
+omit = ["*/__init__.py", "*/main.py", "*/interactive_task_queue.py"]
 
 
 [tool.coverage.report]

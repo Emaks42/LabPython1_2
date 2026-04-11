@@ -2,6 +2,7 @@ from src.task_sources.file_source import FileSource
 from src.task_sources.api_source import APISource
 from src.task_sources.generator_source import GeneratorSource
 from src.task_working.task_processing import get_tasks_from_source
+from src.interactive_task_queue import interactive_task_queue
 
 
 def main() -> None:
@@ -45,6 +46,8 @@ def main() -> None:
                 elif len(inp) == 3:
                     gener = GeneratorSource(int(inp[1]), int(inp[2]))
                 print(*get_tasks_from_source(gener), sep="\n")
+        elif inp[0] == "tq":
+            interactive_task_queue()
         else:
             print("неизвестная команда")
         inp_ = input("$ > ")
