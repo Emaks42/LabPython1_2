@@ -347,13 +347,13 @@ status: DONE
 <pre>
 @pytest.fixture
 def arr_queue():
-    return TaskQueue([], [], [Task.from_dict({"id": 12}), Task.from_dict({"id": 13})])
+    return TaskQueue([Task.from_dict({"id": 12}), Task.from_dict({"id": 13})])
 
 
 @pytest.fixture
 def source_queue():
-    return TaskQueue([(GeneratorSource, {"amount_of_tasks": 3, "seed": 10}),
-                      (GeneratorSource, {"amount_of_tasks": 2, "seed": 12})],
+    return TaskQueue([], [(GeneratorSource, {"amount_of_tasks": 3, "seed": 10}),
+                          (GeneratorSource, {"amount_of_tasks": 2, "seed": 12})],
                      [0, 1, 1])
 </pre>
 
@@ -532,22 +532,22 @@ def test_generator_working(source_queue):
 <pre>
 def test_incorrect_sources():
     with pytest.raises(TaskQueueError):
-        TaskQueue([(IncorrectSource1, {})], [0])
+        TaskQueue([], [(IncorrectSource1, {})], [0])
     with pytest.raises(TaskQueueError):
-        TaskQueue([(IncorrectSource2, {})], [0])
+        TaskQueue([], [(IncorrectSource2, {})], [0])
 
 
 def test_incorrect_order():
     with pytest.raises(TaskQueueError):
-        TaskQueue([(GeneratorSource, {})], [5])
+        TaskQueue([], [(GeneratorSource, {})], [5])
 
 
 def test_incorrect_task_list():
     with pytest.raises(TaskQueueError):
-        TaskQueue([(GeneratorSource, {})], [0], [102])
+        TaskQueue([102], [(GeneratorSource, {})], [0])
 </pre>
 
 
-Все тесты в сумме покрывают примерно 93% кода из src. Всего есть ~25 тестов (так как размер и сложность кодовой базы
+Все тесты в сумме покрывают примерно 92% кода из src. Всего есть ~26 тестов (так как размер и сложность кодовой базы
 работы небольшие потребовалось небольшое количество тестов, отдельно хотелось бы отметить, что нет тестов для ошибок в
 итераторе и генераторе, так как их код почти не отличается от кода обычной функций).
