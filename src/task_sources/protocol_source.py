@@ -11,3 +11,6 @@ class TaskSource(Protocol):
 
     def is_tasks_ended(self) -> bool:
         ...
+
+    async def get_task_async(self) -> dict:
+        ...

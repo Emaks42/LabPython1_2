@@ -35,3 +35,17 @@ class FileSource:
         is_end = not bool(self.file.read())
         self.file.seek(sav, SEEK_SET)
         return is_end
+
+    async def get_task_async(self) -> dict:
+        text = self.file.readline()[:-1]
+        if text != "Task {":
+            raise FileSourceError("некорректный формат записи task")
+        task = dict()
+        text = self.file.readline()[:-1]
+        while text != "}":
+            if ":" not in text:
+                raise FileSourceError("некорректный формат записи полей task")
+            k = text.split(":", 1)
+            task[k[0]] = k[1].strip()
+            text = self.file.readline()[:-1]
+        return task
