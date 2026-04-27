@@ -26,6 +26,10 @@ ignore_missing_imports = true
 module = "src.task_working.task"
 ignore_errors = true
 
+[[tool.mypy.overrides]]
+module = "src.distributors.config_distributor"
+ignore_errors = true
+
 [tool.uv]
 dev-dependencies=[
     "pytest-cov>=7.0.0",
