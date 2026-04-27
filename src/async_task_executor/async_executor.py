@@ -24,7 +24,7 @@ class AsyncExecutor:
     handlers: dict[Handler, int]
 
     def __init__(self, handlers: dict[Handler, int], sources: list[tuple[Type, Dict[str, Any]]] | None = None,
-                 order: list[int] | None = None, qsize: int = 3,
+                 order: list[int] | None = None,
                  log_config: dict[str, Any] | None = None):
         self.sources = sources or []
         self.order = order or []
@@ -32,7 +32,6 @@ class AsyncExecutor:
                                     "format": "[%(asctime)s] %(message)s",
                                     "filemode": "w"}
         logging.basicConfig(**log_config)
-        self.qsize = qsize
         self.handlers = handlers
         self._is_active = False
         self.seed = random.random()
@@ -64,7 +63,7 @@ class AsyncExecutor:
         await self._queue.join()
 
     async def __aenter__(self):
-        self._queue = AsyncTaskQueue(self.qsize, self.unpack_sources(), self.order)
+        self._queue = AsyncTaskQueue(self.unpack_sources(), self.order)
         self._is_active = True
         self._worker_tasks = []
         for handler, count in self.handlers.items():

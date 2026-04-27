@@ -21,7 +21,7 @@ class AsyncTaskQueue:
     prior_filter = ValidatedField(PRIORITY_LIMITATIONS, int, "prior_filter")
     status_filter = ValidatedField(POSSIBLE_STATUSES, str, "status_filter")
 
-    def __init__(self, maxsize: int = 3, sources: list[TaskSource] | None = None,
+    def __init__(self, sources: list[TaskSource] | None = None,
                  order: list[int] | None = None, prior_filter: int | None = None, status_filter: int | None = None):
         if sources is not None:
             for source in sources:
@@ -49,7 +49,6 @@ class AsyncTaskQueue:
         if not isinstance(task, Task) and task is not None:
             raise TaskQueueError("В очередь задач можно добавлять только задачи (класс Task)")
         await self.tasks.put(task)
-        print("added", task)
 
     async def pop(self):
         while sum(self.ended_sources) != len(self.sources) or not self.tasks.empty():
@@ -74,4 +73,3 @@ class AsyncTaskQueue:
         if not isinstance(task, Task) and task is not None:
             raise TaskQueueError("В очередь задач можно добавлять только задачи (класс Task)")
         self.tasks.put_nowait(task)
-        print("added", task)
