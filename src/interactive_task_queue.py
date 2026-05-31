@@ -6,7 +6,6 @@ from src.task_working.task import Task
 
 
 def read_sources():
-    print("Пожалуйста введите источники задач для очереди, для окончания ввода напишите end")
     inp_ = input("$ > ")
     sources = []
     while inp_ != "end":
@@ -35,7 +34,8 @@ def read_sources():
                 print("слишком много аргументов")
             else:
                 print("Генератор добавлен")
-                sources.append((GeneratorSource, {}))
+                if len(inp) == 1:
+                    sources.append((GeneratorSource, {}))
                 if len(inp) == 2:
                     sources.append((GeneratorSource, {"amount_of_tasks": int(inp[1])}))
                 elif len(inp) == 3:
@@ -82,6 +82,7 @@ def interactive_generator(gen):
 
 
 def interactive_task_queue():
+    print("Пожалуйста введите источники задач для очереди, для окончания ввода напишите end")
     sources = read_sources()
     print("Введите порядок чтения источников в очереди:")
     while True:
@@ -91,7 +92,7 @@ def interactive_task_queue():
         except ValueError:
             print("некорректный формат")
     tasks = read_tasks()
-    tq = TaskQueue(sources, order, tasks)
+    tq = TaskQueue(tasks, sources, order)
     print("Запущен режим интерактивной очереди, для окончания введите end")
     inp_ = input("$ > ")
     while inp_ != "end":

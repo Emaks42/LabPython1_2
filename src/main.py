@@ -3,6 +3,7 @@ from src.task_sources.api_source import APISource
 from src.task_sources.generator_source import GeneratorSource
 from src.task_working.task_processing import get_tasks_from_source
 from src.interactive_task_queue import interactive_task_queue
+from src.interactive_task_executor import interactive_task_executor
 
 
 def main() -> None:
@@ -48,6 +49,8 @@ def main() -> None:
                 print(*get_tasks_from_source(gener), sep="\n")
         elif inp[0] == "tq":
             interactive_task_queue()
+        elif inp[0] == "exec":
+            interactive_task_executor()
         else:
             print("неизвестная команда")
         inp_ = input("$ > ")

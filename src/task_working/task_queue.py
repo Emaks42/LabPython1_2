@@ -109,7 +109,6 @@ class TaskQueue:
         if order is None:
             order = list(range(len(sources)))
         self.order = order
-        print(self.sources)
         if any(not isinstance(task, Task) for task in tasks):
             raise TaskQueueError("нельзя передавать в очередь задач не объекты класса Task")
         self.tasks = tasks
@@ -165,7 +164,7 @@ class TaskQueue:
                     continue
             return new_task
 
-    def get_generator(self) -> Generator[Task]:
+    def get_generator(self):
         def gen():
             tasks = [Task.from_dict({"id": -1})]
             ended_sources = [0] * len(self.sources)

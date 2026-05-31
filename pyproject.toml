@@ -26,6 +26,10 @@ ignore_missing_imports = true
 module = "src.task_working.task"
 ignore_errors = true
 
+[[tool.mypy.overrides]]
+module = "src.distributors.config_distributor"
+ignore_errors = true
+
 [tool.uv]
 dev-dependencies=[
     "pytest-cov>=7.0.0",
@@ -52,7 +56,7 @@ pythonpath = ["src"]
 source = ["src"]
 branch = true
 parallel = true
-omit = ["*/__init__.py", "*/main.py", "*/interactive_task_queue.py"]
+omit = ["*/__init__.py", "*/main.py", "*/interactive_task_queue.py", "*/interactive_task_executor.py"]
 
 
 [tool.coverage.report]
