@@ -8,13 +8,13 @@ class PrintHandler:
 
     async def handle_task(self, task: dict):
         task_ = Task.from_dict(task)
+        print(type(task_.priority), type(self.params["delay"]))
         if task_.priority is not None:
-            print(task_.priority * self.params["delay"])
             await asyncio.sleep(task_.priority * self.params["delay"])
         else:
-            print(self.params["delay"])
+            print("beep")
             await asyncio.sleep(self.params["delay"])
-        print("proceed", task_)
+        print("processed", task_)
 
     def get_params(self):
         return self.params

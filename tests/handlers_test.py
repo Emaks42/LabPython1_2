@@ -44,7 +44,8 @@ async def test_printing_handler_work(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_unstable_handler_work():
-    async with AsyncExecutor({UnstableHandler(): 5}) as executor:
+    async with AsyncExecutor({UnstableHandler(): 5},
+                             [(GeneratorSource, {"amount_of_tasks": 10, "seed": 10})], [0]) as executor:
         await executor.send_task(Task.from_dict({"id": 10}))
         await executor.wait_all()
 

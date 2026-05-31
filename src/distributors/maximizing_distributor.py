@@ -9,8 +9,9 @@ class MaximizingDistributor:
         param = worker.get(self.worker_param) * (task.get(self.scaling_task_param, 1))
         if param is not None:
             self.buffer.append(param)
-            if len(self.buffer) == self.buf_size:
+            if len(self.buffer) >= self.buf_size:
                 if param == max(self.buffer):
+                    self.buffer.pop(0)
                     return True
                 else:
                     self.buffer.pop(0)

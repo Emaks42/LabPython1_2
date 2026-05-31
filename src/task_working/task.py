@@ -132,6 +132,10 @@ class Task:
         return f"Task. id: {self.id}, description: {self.description}, status: {self.status}, " \
                f"creation time: {self.creation_time}, priority: {self.priority}, deadline: {self.deadline}"
 
+    def as_dict(self):
+        return {"id": self.id, "description": self.description, "status": self.status,
+                "creation time": self.creation_time, "deadline": self.deadline, "priority": self.priority}
+
     def __eq__(self, other):
         if isinstance(other, Task):
             ans = True

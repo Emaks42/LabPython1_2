@@ -164,7 +164,7 @@ class TaskQueue:
                     continue
             return new_task
 
-    def get_generator(self) -> Generator[Task]:
+    def get_generator(self):
         def gen():
             tasks = [Task.from_dict({"id": -1})]
             ended_sources = [0] * len(self.sources)

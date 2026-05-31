@@ -101,7 +101,9 @@ class AsyncExecutor:
                     error = TaskProcessingError(task, name, e)
                     logging.error(f"{error} on {name}\n during processing {task}")
                     self._errors.append(error)
-                continue
+                finally:
+                    self._queue.task_done()
+                    continue
             try:
                 test = self.distributor.does_task_fit(task.as_dict(), handler.get_params())
                 if test:
@@ -111,21 +113,23 @@ class AsyncExecutor:
                         logging.info(f"Task {str(task)}\n processed by {name}")
                     except Exception as e:
                         error = TaskProcessingError(task, name, e)
-                        logging.error(f"{error} on {name}\n during processing {task}")
+                        logging.error(f"error {error} on {name}\n during processing {task}")
                         self._errors.append(error)
                 else:
-                    logging.info(f"task {task} unmatched {name}")
+                    logging.info(f"unmatched {name} task {task}")
                     try:
                         self._queue.immediate_push(task)
                     except asyncio.QueueFull:
                         await self._queue.push(task)
             except Exception as e:
-                logging.error(f"{e} on {name}\n during matching {task} and {name}")
+                logging.error(f"error {e} on {name}\n during matching {task} and {name}")
                 try:
                     logging.info(f"Task {str(task)}\n taken by {name}")
                     await handler.handle_task(task.as_dict())
                     logging.info(f"Task {str(task)}\n processed by {name}")
                 except Exception as e:
                     error = TaskProcessingError(task, name, e)
-                    logging.error(f"{error} on {name}\n during processing {task}")
+                    logging.error(f"error {error} on {name}\n during processing {task}")
                     self._errors.append(error)
+            finally:
+                self._queue.task_done()

@@ -1,5 +1,3 @@
-import logging
-
 from src.task_sources.protocol_source import TaskSource
 from src.task_working.task import Task
 from src.constants import PRIORITY_LIMITATIONS, POSSIBLE_STATUSES
@@ -56,7 +54,6 @@ class AsyncTaskQueue:
                 res = await self.tasks.get()
                 return res
             else:
-                logging.info("blob")
                 new_task = Task.from_dict(await self.sources[self.order[self.pos]].get_task_async())
                 if self.sources[self.order[self.pos]].is_tasks_ended():
                     self.ended_sources[self.order[self.pos]] = 1
@@ -68,6 +65,9 @@ class AsyncTaskQueue:
     async def join(self):
         while sum(self.ended_sources) != len(self.sources):
             await self.tasks.join()
+
+    def task_done(self):
+        self.tasks.task_done()
 
     def immediate_push(self, task: Task):
         if not isinstance(task, Task) and task is not None:

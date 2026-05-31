@@ -9,16 +9,19 @@ from src.handlers.chaos_handler import ChaosHandler
 from src.distributors.maximizing_distributor import MaximizingDistributor
 from src.distributors.random_distributor import RandomDistributor
 from src.async_task_executor.async_executor import AsyncExecutor
+from src.task_working.task import Task
 
 
 def read_dict():
     inp___ = input("$ > ")
+    if len(inp___.strip()) == 0:
+        return {}
     inp__ = inp___.split(",")
     if any(":" not in s for s in inp__):
         print("некорректный формат записи")
         raise ValueError
     split_par = [i.split(":", 1) for i in inp__]
-    par = {i[0].strip(): i[1] for i in split_par}
+    par = {i[0].strip(): i[1].strip() for i in split_par}
     return par
 
 
@@ -96,6 +99,7 @@ async def run_async_executor(handlers, distributor, sources, order):
     async with AsyncExecutor(handlers, sources, order) as executor:
         if distributor is not None:
             executor.set_distributor(distributor)
+        await executor.send_task(Task.from_dict({"id": 10}))
         await executor.wait_all()
 
 
